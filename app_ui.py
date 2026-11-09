@@ -52,6 +52,7 @@ from away_mode import AwayMode
 from remote_server import RemoteService
 
 from paths import APP_DIR, LOG_DIR, ICON_PATH
+from splash import ArgusSplash
 
 BASE_DIR = APP_DIR
 
@@ -87,13 +88,13 @@ def guard(parent, title="Password required") -> bool:
 # ----------------------------------------------------------------------
 MONO_FONT = "'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace"
 
-ACCENT = "#00E39B"       # monitoring-LED green/cyan
-ACCENT_DIM = "#0a8f63"
-ACCENT_HOVER = "#33ecb2"
+ACCENT = "#7EE8FF"       # icon ice-cyan
+ACCENT_DIM = "#2f7d91"
+ACCENT_HOVER = "#b3f2ff"
 DANGER = "#ff3b4e"
 DANGER_HOVER = "#ff6470"
-SAFE = "#00E39B"
-SAFE_HOVER = "#33ecb2"
+SAFE = "#7EE8FF"
+SAFE_HOVER = "#b3f2ff"
 
 STYLESHEET = f"""
 * {{
@@ -174,7 +175,7 @@ QListWidget#navList::item:hover:!selected {{
 }}
 QPushButton {{
     background-color: {ACCENT};
-    color: #001510;
+    color: #031219;
     border: none;
     padding: 9px 18px;
     border-radius: 3px;
@@ -198,7 +199,7 @@ QPushButton#stopBtn:hover, QPushButton#dangerBtn:hover {{
 }}
 QPushButton#safeBtn {{
     background-color: {SAFE};
-    color: #001510;
+    color: #031219;
 }}
 QPushButton#safeBtn:hover {{
     background-color: {SAFE_HOVER};
@@ -226,7 +227,7 @@ QLineEdit:focus {{
 }}
 QPlainTextEdit {{
     background-color: #030404;
-    color: #9ad9c1;
+    color: #bfeeff;
     border: 1px solid #141816;
     border-radius: 4px;
     font-family: {MONO_FONT};
@@ -1834,12 +1835,20 @@ def main():
     # quiet update check shortly after start (tray notification only)
     QTimer.singleShot(25000, lambda: window.settings_widget.check_updates(silent=True))
 
+    def _reveal_app():
+        if launch_in_tray:
+            # launched automatically at Windows startup: stay out of the way
+            # in the tray and start monitoring right away
+            window.set_monitoring(True)
+        else:
+            window.show()
+
     if launch_in_tray:
-        # launched automatically at Windows startup: stay out of the way
-        # in the tray and start monitoring right away
-        window.set_monitoring(True)
+        # silent/automatic startup: skip the cinematic intro entirely
+        _reveal_app()
     else:
-        window.show()
+        splash = ArgusSplash()
+        splash.finished.connect(_reveal_app)
 
     sys.exit(app.exec())
 
