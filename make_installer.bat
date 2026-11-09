@@ -41,13 +41,21 @@ echo [2/2] Building ARGUS_Setup.exe ...
     --exclude-module tkinter --exclude-module matplotlib ^
     installer\installer.py >> "%LOG%" 2>&1
 
+echo Waiting for the antivirus scan to finish...
+ping -n 11 127.0.0.1 >nul
 if not exist "dist\ARGUS_Setup.exe" (
-    echo [ERROR] The installer was not built.
+    echo [ERROR] dist\ARGUS_Setup.exe is missing. If the log says "Build complete", Windows Defender
+    echo probably quarantined it: Windows Security ^> Virus ^& threat protection ^> Protection history ^> Restore,
+    echo and add this folder to Exclusions, then run this again.
     powershell -NoProfile -Command "Get-Content -Tail 30 -LiteralPath '%LOG%'"
     echo Full log: %LOG%
     goto :fail
 )
 copy /Y "dist\ARGUS_Setup.exe" "ARGUS_Setup.exe" >nul
+if not exist "ARGUS_Setup.exe" (
+    ping -n 11 127.0.0.1 >nul
+    copy /Y "dist\ARGUS_Setup.exe" "ARGUS_Setup.exe" >nul
+)
 echo.
 echo ==========================================================
 echo   Done:  ARGUS_Setup.exe  (in this folder)
@@ -58,5 +66,5 @@ echo ==========================================================
 
 :fail
 echo.
-pause
+if /i not "%~1"=="nopause" pause
 endlocal
