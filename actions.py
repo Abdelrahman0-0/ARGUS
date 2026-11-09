@@ -63,10 +63,24 @@ def siren_stop():
     _siren_stop.set()
 
 
+_message_handler = None   # set by the GUI: shows the horror overlay on the GUI thread
+
+
+def set_message_handler(fn):
+    global _message_handler
+    _message_handler = fn
+
+
 def show_message(text: str):
     _need_windows()
     import ctypes
     text = (text or "").strip()[:300] or "الجهاز ده متراقب. اتركه."
+    if _message_handler is not None:
+        try:
+            _message_handler(text)      # emits a Qt signal -> overlay on GUI thread
+            return
+        except Exception:
+            pass                        # fall back to the plain box below
     # MB_OK | MB_ICONWARNING | MB_SETFOREGROUND | MB_TOPMOST
     flags = 0x0 | 0x30 | 0x10000 | 0x40000
     threading.Thread(
