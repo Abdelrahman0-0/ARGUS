@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QLineEdit, QPlainTextEdit, QListWidget,
     QListWidgetItem, QTableWidget, QTableWidgetItem, QHeaderView, QFrame,
-    QStackedWidget, QInputDialog, QMessageBox, QSizePolicy,
+    QStackedWidget, QInputDialog, QMessageBox, QSizePolicy, QScrollArea,
     QGraphicsDropShadowEffect, QSystemTrayIcon, QMenu, QCheckBox, QFileDialog,
 )
 
@@ -53,6 +53,8 @@ from remote_server import RemoteService
 
 from paths import APP_DIR, LOG_DIR, ICON_PATH
 from splash import ArgusSplash
+import actions
+import scare_overlay
 
 BASE_DIR = APP_DIR
 
@@ -106,6 +108,9 @@ QMainWindow, QWidget {{
     font-family: {MONO_FONT};
     font-size: 12.5px;
 }}
+QLabel, QCheckBox {{
+    background: transparent;
+}}
 QFrame#topbar {{
     background-color: #050606;
     border-bottom: 1px solid #171c1a;
@@ -117,7 +122,7 @@ QLabel#topbarBrand {{
     letter-spacing: 2px;
 }}
 QLabel#topbarClock {{
-    color: #6f7a76;
+    color: #9fb0b6;
     font-size: 12px;
     letter-spacing: 1px;
 }}
@@ -128,7 +133,7 @@ QLabel#ledOn {{
     letter-spacing: 1px;
 }}
 QLabel#ledOff {{
-    color: #4a4f4d;
+    color: #8fa0a6;
     font-weight: 700;
     font-size: 11.5px;
     letter-spacing: 1px;
@@ -145,7 +150,7 @@ QFrame#sidebar {{
 }}
 QLabel#brandSub {{
     font-size: 10px;
-    color: #4a4f4d;
+    color: #7d8d93;
     padding: 0 20px 14px 20px;
     letter-spacing: 1px;
 }}
@@ -159,7 +164,7 @@ QListWidget#navList::item {{
     padding: 11px 12px;
     border-radius: 3px;
     margin-bottom: 2px;
-    color: #767c7a;
+    color: #a9b6ba;
     font-weight: 600;
     letter-spacing: 0.5px;
 }}
@@ -170,8 +175,8 @@ QListWidget#navList::item:selected {{
     font-weight: 700;
 }}
 QListWidget#navList::item:hover:!selected {{
-    background-color: #080a09;
-    color: #a8aeac;
+    background-color: #0b1013;
+    color: #e2eaec;
 }}
 QPushButton {{
     background-color: {ACCENT};
@@ -206,17 +211,17 @@ QPushButton#safeBtn:hover {{
 }}
 QPushButton#ghostBtn {{
     background-color: transparent;
-    border: 1px solid #222825;
-    color: #9aa19e;
+    border: 1px solid #3a4c53;
+    color: #cfdadd;
 }}
 QPushButton#ghostBtn:hover {{
-    background-color: #0a0d0c;
-    border: 1px solid {ACCENT_DIM};
+    background-color: #0c1316;
+    border: 1px solid {ACCENT};
     color: {ACCENT};
 }}
 QLineEdit {{
-    background-color: #060707;
-    border: 1px solid #1c211f;
+    background-color: #0a0f12;
+    border: 1px solid #2c3d44;
     border-radius: 3px;
     padding: 9px 11px;
     color: #d4d8d6;
@@ -249,7 +254,7 @@ QTableWidget::item {{
 }}
 QHeaderView::section {{
     background-color: #07090a;
-    color: #6f7a76;
+    color: #9fb0b6;
     padding: 10px 8px;
     border: none;
     border-bottom: 1px solid #171c1a;
@@ -279,7 +284,7 @@ QLabel#statusPillRunning {{
     letter-spacing: 0.8px;
 }}
 QLabel#statusPillStopped {{
-    color: #55605c;
+    color: #93a2a8;
     font-weight: 700;
     font-size: 11.5px;
     letter-spacing: 0.8px;
@@ -291,18 +296,18 @@ QLabel#pageTitle {{
     letter-spacing: 1px;
 }}
 QLabel#pageSubtitle {{
-    font-size: 12px;
-    color: #6f7a76;
+    font-size: 12.5px;
+    color: #9fb0b6;
 }}
 QLabel#sectionTitle {{
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
-    color: #9aa19e;
+    color: {ACCENT};
     letter-spacing: 1.5px;
 }}
 QFrame#card {{
-    background-color: #030404;
-    border: 1px solid #14181a;
+    background-color: #080d10;
+    border: 1px solid #1f2d33;
     border-radius: 4px;
     border-left: 2px solid {ACCENT_DIM};
 }}
@@ -321,6 +326,45 @@ QLabel#awayBannerText {{
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.5px;
+}}
+QLabel#cardDesc {{
+    color: #a9b8bd;
+    font-size: 12.5px;
+    line-height: 150%;
+}}
+QLabel#cardInfo {{
+    color: #cfe9f0;
+    font-size: 12.5px;
+}}
+QCheckBox {{
+    color: #dbe6e9;
+    spacing: 10px;
+    font-size: 12.5px;
+}}
+QCheckBox::indicator {{
+    width: 18px;
+    height: 18px;
+    border: 1px solid #5d7e89;
+    border-radius: 3px;
+    background-color: #0a0f12;
+}}
+QCheckBox::indicator:hover {{
+    border: 1px solid {ACCENT};
+}}
+QCheckBox::indicator:checked {{
+    background-color: {ACCENT};
+    border: 1px solid {ACCENT};
+}}
+QScrollArea {{
+    background: transparent;
+    border: none;
+}}
+QScrollArea > QWidget > QWidget {{
+    background: transparent;
+}}
+QMessageBox QLabel, QInputDialog QLabel {{
+    color: #e6eef0;
+    font-size: 13px;
 }}
 """
 
@@ -348,6 +392,7 @@ class EventBus(QObject):
     activity_tick = Signal(int, int)              # keys, clicks
     browser_visit = Signal(str, str, str, str)     # browser, url, title, time
     alert_added = Signal(dict)
+    scare_message = Signal(str)                  # phone message -> horror overlay
 
 
 class MonitorController:
@@ -860,7 +905,7 @@ class AwayModeWidget(QWidget):
             "browsing only count when someone actually touched the device."
         )
         desc.setWordWrap(True)
-        desc.setStyleSheet("color: #9a9bab;")
+        desc.setObjectName("cardDesc")
         layout.addWidget(desc)
 
         # banner
@@ -1031,14 +1076,25 @@ class SettingsWidget(QWidget):
         self.away = away
         self.remote = remote
 
-        layout = QVBoxLayout(self)
-        layout.setSpacing(14)
+        # everything lives in a scroll area so cards never get squashed
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        inner = QWidget()
+        scroll.setWidget(inner)
+        outer.addWidget(scroll)
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(0, 0, 10, 16)
+        layout.setSpacing(16)
 
         title = QLabel("SETTINGS")
         title.setObjectName("pageTitle")
         layout.addWidget(title)
 
-        subtitle = QLabel("Control how ARGUS launches on this PC.")
+        subtitle = QLabel("Startup, phone link, shortcuts and updates.")
         subtitle.setObjectName("pageSubtitle")
         layout.addWidget(subtitle)
 
@@ -1060,7 +1116,7 @@ class SettingsWidget(QWidget):
             "in Task Manager > Startup, and removable any time from here."
         )
         startup_desc.setWordWrap(True)
-        startup_desc.setStyleSheet("color: #6f7a76;")
+        startup_desc.setObjectName("cardDesc")
         startup_layout.addWidget(startup_desc)
 
         row = QHBoxLayout()
@@ -1088,7 +1144,7 @@ class SettingsWidget(QWidget):
 
         shortcuts_desc = QLabel("Add ARGUS to your Desktop or Start Menu so you can open it with a click.")
         shortcuts_desc.setWordWrap(True)
-        shortcuts_desc.setStyleSheet("color: #6f7a76;")
+        shortcuts_desc.setObjectName("cardDesc")
         shortcuts_layout.addWidget(shortcuts_desc)
 
         btn_row = QHBoxLayout()
@@ -1125,7 +1181,7 @@ class SettingsWidget(QWidget):
             "restarts itself. Your logs, passwords and phone setup are not touched."
         )
         d.setWordWrap(True)
-        d.setStyleSheet("color: #6f7a76;")
+        d.setObjectName("cardDesc")
         lay.addWidget(d)
         self.update_status = QLabel()
         lay.addWidget(self.update_status)
@@ -1278,7 +1334,7 @@ class SettingsWidget(QWidget):
             "publishes it privately (HTTPS) to your own devices."
         )
         d.setWordWrap(True)
-        d.setStyleSheet("color: #6f7a76;")
+        d.setObjectName("cardDesc")
         lay.addWidget(d)
 
         row = QHBoxLayout()
@@ -1295,7 +1351,7 @@ class SettingsWidget(QWidget):
         lay.addLayout(row)
 
         self.webcam_check = QCheckBox(
-            "Allow webcam snapshot from the phone (needs: pip install opencv-python)"
+            "Allow webcam snapshot from the phone"
         )
         self.webcam_check.setChecked(bool(self.remote.cfg.get("webcam")))
         self.webcam_check.toggled.connect(self.toggle_webcam)
@@ -1316,7 +1372,7 @@ class SettingsWidget(QWidget):
         self.phone_info = QLabel()
         self.phone_info.setWordWrap(True)
         self.phone_info.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.phone_info.setStyleSheet("color: #9a9bab;")
+        self.phone_info.setObjectName("cardInfo")
         lay.addWidget(self.phone_info)
 
         self.qr_label = QLabel()
@@ -1651,6 +1707,9 @@ class MainWindow(QMainWindow):
         self.bus.activity_tick.connect(self.on_activity_tick)
         self.bus.browser_visit.connect(self.on_browser_visit)
         self.bus.alert_added.connect(self.away_widget.add_alert_row)
+        self.bus.scare_message.connect(self._show_scare)
+        actions.set_message_handler(lambda t: self.bus.scare_message.emit(t))
+        scare_overlay.prewarm()
         self.away.restore_state()   # alerts if ARGUS came back up armed unexpectedly
 
         # keep the away banner + top bar LEDs correct even if state changed
@@ -1659,6 +1718,12 @@ class MainWindow(QMainWindow):
         self.tick_timer.timeout.connect(self.tick)
         self.tick_timer.start(1000)
         self.tick()
+
+    def _show_scare(self, text):
+        try:
+            scare_overlay.show_scare(text)
+        except Exception:
+            QMessageBox.warning(None, "ARGUS", text)
 
     def tick(self):
         self.topbar_clock.setText(datetime.now().strftime("%Y-%m-%d  %H:%M:%S"))
