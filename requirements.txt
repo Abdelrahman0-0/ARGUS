@@ -1,0 +1,10 @@
+psutil
+pywin32
+pynput
+PySide6
+flask
+pywebpush
+pillow
+qrcode
+# optional: webcam snapshot from the phone
+# opencv-python

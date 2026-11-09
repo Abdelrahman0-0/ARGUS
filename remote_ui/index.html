@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050607">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ARGUS">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" href="/icon-192.png">
+  <link rel="stylesheet" href="/app.css">
+  <title>ARGUS</title>
+</head>
+<body>
+
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <symbol id="eye" viewBox="0 0 120 120">
+    <circle class="eye-ring" cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="3"/>
+    <path d="M14 60 Q60 18 106 60 Q60 102 14 60 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+    <circle class="eye-pupil" cx="60" cy="60" r="15" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<main id="login" hidden>
+  <div class="login-box">
+    <svg class="login-eye" aria-hidden="true"><use href="#eye"/></svg>
+    <h1>ARGUS</h1>
+    <p class="muted">ادخل باسورد الموبايل اللي حطيته في البرنامج على الكمبيوتر.</p>
+    <form id="loginForm" autocomplete="off">
+      <label for="pw">الباسورد</label>
+      <input id="pw" type="password" autocomplete="current-password" required>
+      <button class="btn primary" id="loginBtn" type="submit">دخول</button>
+      <p id="loginErr" class="err" role="alert"></p>
+    </form>
+  </div>
+</main>
+
+<main id="app" hidden>
+  <header class="plate" id="plate" data-state="offline">
+    <svg class="plate-eye" aria-hidden="true"><use href="#eye"/></svg>
+    <div class="plate-text">
+      <h1 id="stateTitle">بتتصل...</h1>
+      <p id="stateSub"></p>
+    </div>
+  </header>
+
+  <section class="block">
+    <button id="armBtn" class="btn arm" type="button" disabled>...</button>
+  </section>
+
+  <section class="block" aria-labelledby="h-act">
+    <h2 id="h-act">تحكم في الجهاز</h2>
+    <div class="grid" id="actions"></div>
+  </section>
+
+  <section class="block" aria-labelledby="h-log" id="logSection">
+    <div class="row-between">
+      <h2 id="h-log">النشاط</h2>
+      <button id="clearBtn" class="link" type="button">مسح السجل</button>
+    </div>
+    <ol id="alerts" class="alerts"></ol>
+    <p id="alertsEmpty" class="muted">مفيش نشاط مسجّل.</p>
+  </section>
+
+  <section class="block" aria-labelledby="h-set">
+    <h2 id="h-set">الإشعارات</h2>
+    <p id="pushStatus" class="muted"></p>
+    <div class="row-gap">
+      <button id="pushBtn" class="btn" type="button">فعّل الإشعارات</button>
+      <button id="testBtn" class="btn ghost" type="button" hidden>جرّب إشعار</button>
+    </div>
+    <p id="iosHint" class="hint" hidden>على الآيفون: اضغط زرار المشاركة، اختار «إضافة إلى الشاشة الرئيسية»، وافتح ARGUS من هناك. الإشعارات مش بتشتغل من Safari مباشرة.</p>
+  </section>
+
+  <footer class="foot">
+    <span id="hostName" class="muted"></span>
+    <button id="logoutBtn" class="link" type="button">تسجيل الخروج</button>
+  </footer>
+</main>
+
+<dialog id="shotDlg">
+  <img id="shotImg" alt="لقطة من شاشة الجهاز">
+  <p class="muted" id="shotNote"></p>
+  <form method="dialog"><button class="btn">إغلاق</button></form>
+</dialog>
+
+<dialog id="msgDlg">
+  <form id="msgForm" method="dialog">
+    <label for="msgText">الرسالة اللي هتظهر على شاشة الجهاز</label>
+    <textarea id="msgText" rows="3" maxlength="300">الجهاز ده متراقب. من فضلك سيبه.</textarea>
+    <div class="row-gap">
+      <button class="btn primary" value="send">ابعت</button>
+      <button class="btn ghost" value="cancel" formnovalidate>إلغاء</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="confirmDlg">
+  <form method="dialog">
+    <h2 id="confirmTitle"></h2>
+    <p id="confirmText" class="muted"></p>
+    <div class="row-gap">
+      <button class="btn danger" value="yes" id="confirmYes"></button>
+      <button class="btn ghost" value="no">لأ</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/app.js" defer></script>
+</body>
+</html>
