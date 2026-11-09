@@ -6,7 +6,7 @@
   --line: #222b2d;
   --text: #e9f0ed;
   --muted: #8a9895;
-  --green: #00e39b;
+  --green: #7ee8ff;
   --red: #ff4457;
   --amber: #f4b73f;
   --grey: #6d7a77;
@@ -51,7 +51,7 @@ h2 { font-size: 1.05rem; font-weight: 700; margin-block-end: 10px; }
 .plate-text h1 { font-size: 1.7rem; line-height: 1.25; font-weight: 800; color: var(--text); }
 .plate-text p { color: var(--muted); margin-block-start: 4px; font-variant-numeric: tabular-nums; }
 
-.plate[data-state="armed"]   { --state: var(--green); --state-bg: #06130e; }
+.plate[data-state="armed"]   { --state: var(--green); --state-bg: #06181f; }
 .plate[data-state="alert"]   { --state: var(--red);   --state-bg: #1a0709; }
 .plate[data-state="off"]     { --state: var(--grey);  --state-bg: #0b0f10; }
 .plate[data-state="offline"] { --state: var(--amber); --state-bg: #14100a; }
@@ -90,7 +90,7 @@ h2 { font-size: 1.05rem; font-weight: 700; margin-block-end: 10px; }
 }
 .btn:active { transform: translateY(1px); }
 .btn[disabled] { opacity: .45; cursor: default; }
-.btn.primary { background: var(--green); border-color: var(--green); color: #00150e; }
+.btn.primary { background: var(--green); border-color: var(--green); color: #031219; }
 .btn.danger  { background: var(--red); border-color: var(--red); color: #1c0306; }
 .btn.ghost   { background: transparent; }
 .link {
@@ -99,7 +99,7 @@ h2 { font-size: 1.05rem; font-weight: 700; margin-block-end: 10px; }
 }
 
 .arm { width: 100%; min-height: 64px; font-size: 1.15rem; }
-.arm.on  { background: var(--green); border-color: var(--green); color: #00150e; }
+.arm.on  { background: var(--green); border-color: var(--green); color: #031219; }
 .arm.off { background: var(--raise); }
 
 /* ---------- action grid ---------- */
