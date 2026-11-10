@@ -450,4 +450,11 @@ class RemoteService:
         if name == "clear_alerts":
             away.clear_alerts()
             return {}
+        if name == "phone_tamper":
+            # a native guardian app on the phone itself reporting that
+            # someone touched/moved/tried to unlock the phone while armed
+            kind = str(body.get("kind", "PHONE"))[:40] or "PHONE"
+            detail = str(body.get("detail", ""))[:200]
+            away.report_external(kind, detail)
+            return {}
         raise actions.ActionError("أمر غير معروف")
