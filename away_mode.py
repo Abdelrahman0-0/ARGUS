@@ -216,6 +216,24 @@ class AwayMode:
                 print(f"[away] listener error: {e}")
         return entry
 
+    def report_external(self, kind: str, detail: str):
+        """For alerts from outside this PC (e.g. the phone guardian app
+        reporting it was armed and tampered with). Doesn't require this
+        PC's own away mode to be armed - the phone has its own arm state."""
+        now = time.time()
+        entry = {"time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                 "kind": kind, "detail": detail}
+        with self._lock:
+            self.alerts.append(entry)
+            del self.alerts[:-MAX_ALERTS]
+        self._log_alert(entry)
+        for fn in list(self._listeners):
+            try:
+                fn(entry)
+            except Exception as e:
+                print(f"[away] listener error: {e}")
+        return entry
+
     def report_app_switch(self, process_name, title):
         if (process_name or "").lower() == OWN_PROCESS:
             return None
